@@ -1,6 +1,8 @@
 import Fs from 'fs'
 import Path from 'path'
-import Babel from 'babel-core'
+
+// until this issue (https://phabricator.babeljs.io/T7407) is fixed
+var Babel = require('babel-core')
 
 const preprocessor = (events, system, opts) => {
     let babelConfig = {}
