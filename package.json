@@ -1,0 +1,36 @@
+{
+  "name": "nutra-babel",
+  "version": "0.0.0",
+  "description": "The \"nutra-babel\" module is an adaption of the babel compiler for \"N.U.T.R.A.\" unit test runner.",
+  "main": "dist/nutra-babel.js",
+  "scripts": {
+    "test": "test",
+    "build": "babel src --out-dir dist",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m-a-r-c-e-l-i-n-o/nutra-babel.git"
+  },
+  "keywords": [
+    "N.U.T.R.A.",
+    "babel",
+    "node",
+    "unit",
+    "test",
+    "testing"
+  ],
+  "author": "m-a-r-c-e-l-i-n-o <me@marceli.no>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/m-a-r-c-e-l-i-n-o/nutra-babel/issues"
+  },
+  "homepage": "https://github.com/m-a-r-c-e-l-i-n-o/nutra-babel#readme",
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-preset-es2016": "^6.0.11"
+  },
+  "dependencies": {
+    "babel-core": "^6.9.1"
+  }
+}
