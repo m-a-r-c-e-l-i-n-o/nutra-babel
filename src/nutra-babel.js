@@ -19,8 +19,7 @@ const preprocessor = (events, system, opts) => {
     babelConfig = Object.assign(babelConfig, {
         sourceMaps: 'both',
         sourceFileName: null,
-        sourceMapTarget: null,
-        presets: ['es2016']
+        sourceMapTarget: null
     })
     events.onLoad = () => {}
     events.onFileLoad = (source, filename) => {
