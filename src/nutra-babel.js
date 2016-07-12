@@ -1,4 +1,4 @@
-import Fs from 'fs'
+import Fs from 'fs-extra'
 import Path from 'path'
 import * as Babel from 'babel-core';
 
@@ -22,18 +22,19 @@ const preprocessor = (events, system, opts) => {
         sourceMapTarget: null
     })
     events.onLoad = () => {}
-    events.onFileLoad = (source, filename) => {
+    events.onFileLoad = (source, filename, key) => {
         const tmpFilename = Path.join(
             system.tmpDirectory,
+            'babel',
             system.helper.getFileKey(filename)
         )
         babelConfig.sourceFileName = filename
         babelConfig.sourceMapTarget = tmpFilename
         const transpiled = Babel.transform(source, babelConfig)
-        Fs.writeFileSync(tmpFilename, transpiled.code)
         return {
             filename: tmpFilename,
-            source: transpiled.code
+            source: transpiled.code,
+            key: key
         }
     }
     events.onExit = () => {}
