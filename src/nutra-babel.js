@@ -1,14 +1,16 @@
-import Fs from 'fs-extra'
-import Path from 'path'
-import * as Babel from 'babel-core';
+import fs from 'fs-extra'
+import path from 'path'
+import inlineSourceMapComment from 'inline-source-map-comment'
+import * as babel from 'babel-core'
+
 
 const preprocessor = (events, system, opts) => {
     let babelConfig = {}
     if (typeof opts.configFile === 'string') {
         try {
             babelConfig = JSON.parse(
-                Fs.readFileSync(
-                    Path.join(process.cwd(), opts.configFile), {
+                fs.readFileSync(
+                    path.join(process.cwd(), opts.configFile), {
                         encoding: 'utf8',
                         flag: 'r'
                     }
@@ -17,20 +19,23 @@ const preprocessor = (events, system, opts) => {
         } catch (e) {system.handleError(e)}
     }
     babelConfig = Object.assign(babelConfig, {
-        sourceMaps: 'both',
+        sourceMaps: true,
         sourceFileName: null,
         sourceMapTarget: null
     })
     events.onLoad = () => {}
     events.onFileLoad = (source, filename, key) => {
-        const tmpFilename = Path.join(
-            system.tmpDirectory,
-            'babel',
-            system.helper.getFileKey(filename)
-        )
+        const tmpFilename = path.join(system.tmpDirectory, 'babel', key)
         babelConfig.sourceFileName = filename
         babelConfig.sourceMapTarget = tmpFilename
-        const transpiled = Babel.transform(source, babelConfig)
+
+        const transpiled = babel.transform(source, babelConfig)
+        const sourceMapComment = inlineSourceMapComment(transpiled.map)
+        const sourceWithMap = transpiled.code + '\n' + sourceMapComment
+
+        fs.ensureFileSync(tmpFilename)
+        fs.writeFileSync(tmpFilename, sourceWithMap)
+
         return {
             filename: tmpFilename,
             source: transpiled.code,
