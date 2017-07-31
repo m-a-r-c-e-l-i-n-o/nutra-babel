@@ -1,31 +1,39 @@
-import fs from 'fs-extra'
-import path from 'path'
+import { readFileSync, ensureFileSync, writeFileSync } from 'fs-extra'
+import { join } from 'path'
 import inlineSourceMapComment from 'inline-source-map-comment'
 import * as babel from 'babel-core'
 
-
-const preprocessor = (events, system, opts) => {
-    let babelConfig = {}
-    if (typeof opts.configFile === 'string') {
-        try {
-            babelConfig = JSON.parse(
-                fs.readFileSync(
-                    path.join(process.cwd(), opts.configFile), {
-                        encoding: 'utf8',
-                        flag: 'r'
-                    }
-                )
-            )
-        } catch (e) {system.handleError(e)}
+const resolveConfigFile = (opts) => {
+    if (typeof opts.configFile !== 'string') return {}
+    try {
+        const settings = { encoding: 'utf8', flag: 'r' }
+        const configFilePath = join(process.cwd(), opts.configFile)
+        const configFile = readFileSync(configFilePath, settings)
+        return JSON.parse(configFile)
+    } catch (e) {
+        return e
     }
-    babelConfig = Object.assign(babelConfig, {
+}
+
+const resolveConfig = (opts) => {
+    if (typeof opts !== 'object') return {}
+    const required = {
         sourceMaps: true,
         sourceFileName: null,
         sourceMapTarget: null
-    })
+    }
+    const configFile = resolveConfigFile(opts)
+    if (configFile instanceof Error) return configFile
+    return Object.assign({}, configFile, opts, required)
+}
+
+
+const preprocessor = (events, system, opts) => {
+    const babelConfig = resolveConfig(opts)
+    if (babelConfig instanceof Error) return system.handleError(babelConfig)
     events.onLoad = () => {}
     events.onFileLoad = (source, filename, key) => {
-        const tmpFilename = path.join(system.tmpDirectory, 'babel', key)
+        const tmpFilename = join(system.tmpDirectory, 'babel', key)
         babelConfig.sourceFileName = filename
         babelConfig.sourceMapTarget = tmpFilename
 
@@ -33,8 +41,8 @@ const preprocessor = (events, system, opts) => {
         const sourceMapComment = inlineSourceMapComment(transpiled.map)
         const sourceWithMap = transpiled.code + '\n' + sourceMapComment
 
-        fs.ensureFileSync(tmpFilename)
-        fs.writeFileSync(tmpFilename, sourceWithMap)
+        ensureFileSync(tmpFilename)
+        writeFileSync(tmpFilename, sourceWithMap)
 
         return {
             filename: tmpFilename,
