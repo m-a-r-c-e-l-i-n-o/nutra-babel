@@ -3,30 +3,29 @@ import { join } from 'path'
 import inlineSourceMapComment from 'inline-source-map-comment'
 import * as babel from 'babel-core'
 
-const resolveConfigFile = (opts) => {
-    if (typeof opts.configFile !== 'string') return {}
+const resolveConfigFile = (configFile) => {
+    if (typeof configFile !== 'string') return {}
     try {
         const settings = { encoding: 'utf8', flag: 'r' }
-        const configFilePath = join(process.cwd(), opts.configFile)
-        const configFile = readFileSync(configFilePath, settings)
-        return JSON.parse(configFile)
+        const configFilePath = join(process.cwd(), configFile)
+        const config = readFileSync(configFilePath, settings)
+        return JSON.parse(config)
     } catch (e) {
         return e
     }
 }
 
-const resolveConfig = (opts) => {
+const resolveConfig = ({ configFile, ...opts }) => {
     if (typeof opts !== 'object') return {}
     const required = {
         sourceMaps: true,
         sourceFileName: null,
         sourceMapTarget: null
     }
-    const configFile = resolveConfigFile(opts)
-    if (configFile instanceof Error) return configFile
-    return Object.assign({}, configFile, opts, required)
+    const config = resolveConfigFile(configFile)
+    if (config instanceof Error) return config
+    return Object.assign({}, config, opts, required)
 }
-
 
 const preprocessor = (events, system, opts) => {
     const babelConfig = resolveConfig(opts)
