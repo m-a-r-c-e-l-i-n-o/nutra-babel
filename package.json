@@ -1,6 +1,6 @@
 {
   "name": "nutra-babel",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "The \"nutra-babel\" module is an adaption of the babel compiler for \"N.U.T.R.A.\" unit test runner.",
   "main": "dist/nutra-babel.js",
   "scripts": {

@@ -45,7 +45,7 @@ const preprocessor = (events, system, opts) => {
 
         return {
             filename: tmpFilename,
-            source: transpiled.code,
+            source: sourceWithMap,
             key: key
         }
     }
